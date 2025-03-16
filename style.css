@@ -69,3 +69,455 @@ button:hover {
         max-width: none;
     }
 }
+
+.keyboard-guide {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    max-width: 300px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 10;
+}
+
+.keyboard-guide:hover {
+    opacity: 1 !important;
+}
+
+.keyboard-guide h2 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: rgba(120, 220, 255, 0.9);
+}
+
+.keyboard-guide ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.keyboard-guide li {
+    margin-bottom: 6px;
+}
+
+.keyboard-guide kbd {
+    background: rgba(50, 100, 150, 0.5);
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(100, 150, 200, 0.5);
+    font-family: monospace;
+}
+
+.keyboard-guide.active {
+    opacity: 0.8;
+}
+
+.input-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    transition: all 0.3s;
+    opacity: 0;
+}
+
+.input-container.active {
+    opacity: 1;
+}
+
+#thought-input {
+    background: rgba(0, 20, 40, 0.7);
+    border: 1px solid rgba(100, 200, 255, 0.5);
+    color: rgba(200, 230, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 16px;
+    width: 250px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+#thought-input:focus {
+    background: rgba(0, 30, 60, 0.8);
+    border-color: rgba(120, 220, 255, 0.8);
+    box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
+}
+
+/* Onboarding overlay */
+.onboarding {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 10, 20, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.5s;
+}
+
+.onboarding-content {
+    max-width: 600px;
+    text-align: center;
+    padding: 20px;
+}
+
+.onboarding h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: rgba(120, 220, 255, 0.9);
+}
+
+.onboarding p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.onboarding button {
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    background: rgba(0, 120, 255, 0.4);
+}
+
+.onboarding button:hover {
+    background: rgba(0, 150, 255, 0.6);
+}
+
+/* Tooltip for first-time interactions */
+.tooltip {
+    position: fixed;
+    background: rgba(0, 20, 40, 0.8);
+    border: 1px solid rgba(100, 200, 255, 0.5);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 20;
+    max-width: 250px;
+}
+
+.tooltip.visible {
+    opacity: 1;
+}
+
+/* Accessibility improvements */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .keyboard-guide {
+        top: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+        font-size: 14px;
+    }
+    
+    .input-container {
+        bottom: 70px;
+        right: 10px;
+        left: 10px;
+        width: calc(100% - 20px);
+    }
+    
+    #thought-input {
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    .onboarding-content {
+        padding: 15px;
+        max-width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .instructions-content {
+        max-width: 90%;
+        padding: 15px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .instruction-section .key {
+        min-width: 60px;
+        font-size: 12px;
+    }
+    
+    #help-button {
+        bottom: 70px;
+    }
+    
+    /* Ensure buttons are large enough for touch */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Instructions Panel */
+.instructions-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 10, 20, 0.85);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.instructions-panel.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.instructions-content {
+    background: rgba(5, 15, 30, 0.9);
+    border: 1px solid rgba(100, 200, 255, 0.3);
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: rgba(220, 240, 255, 0.9);
+}
+
+.instructions-content h2 {
+    color: rgba(120, 220, 255, 0.9);
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.instruction-section {
+    margin-bottom: 25px;
+}
+
+.instruction-section h3 {
+    color: rgba(150, 220, 255, 0.9);
+    font-size: 18px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+    padding-bottom: 5px;
+}
+
+.instruction-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.instruction-section li {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.instruction-section .key {
+    background: rgba(50, 100, 150, 0.5);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-family: monospace;
+    min-width: 80px;
+    display: inline-block;
+    text-align: center;
+    border: 1px solid rgba(100, 150, 200, 0.5);
+}
+
+#close-instructions {
+    display: block;
+    margin: 20px auto 0;
+    padding: 8px 20px;
+    background: rgba(0, 120, 255, 0.4);
+    border: 1px solid rgba(100, 200, 255, 0.5);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#close-instructions:hover {
+    background: rgba(0, 150, 255, 0.6);
+}
+
+/* Help Button */
+#help-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 30, 60, 0.7);
+    border: 1px solid rgba(100, 200, 255, 0.5);
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+#help-button:hover {
+    background: rgba(0, 60, 120, 0.8);
+    transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .instructions-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+    
+    .instruction-section .key {
+        min-width: 60px;
+    }
+    
+    #help-button {
+        bottom: 70px;
+    }
+}
+
+/* Add these performance optimizations and fixes */
+
+/* Optimize animations for better performance */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Fix for mobile devices */
+@media (max-width: 768px) {
+  .keyboard-guide {
+    top: 10px;
+    right: 10px;
+    max-width: calc(100% - 20px);
+    font-size: 14px;
+  }
+  
+  .input-container {
+    bottom: 70px;
+    right: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+  }
+  
+  #thought-input {
+    width: 100%;
+    font-size: 14px;
+  }
+  
+  .onboarding-content {
+    padding: 15px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .instructions-content {
+    max-width: 90%;
+    padding: 15px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .instruction-section .key {
+    min-width: 60px;
+    font-size: 12px;
+  }
+  
+  #help-button {
+    bottom: 70px;
+  }
+  
+  /* Ensure buttons are large enough for touch */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Fix for high DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  canvas {
+    image-rendering: pixelated;
+  }
+}
+
+/* Fix for dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #000;
+  }
+}
+
+/* Fix for light mode */
+@media (prefers-color-scheme: light) {
+  body {
+    background-color: #000;
+  }
+}
+
+/* Accessibility improvements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus styles for keyboard navigation */
+button:focus, input:focus {
+  outline: 2px solid rgba(100, 200, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* Ensure text is readable */
+.instructions-content, .onboarding-content, .info {
+  line-height: 1.5;
+}
+
+/* Fix for Firefox */
+@-moz-document url-prefix() {
+  canvas {
+    opacity: 0.9999;
+  }
+}

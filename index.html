@@ -9,9 +9,210 @@
       name="description"
       content="Experience a digital consciousness that responds to your presence and interaction."
     />
+    <!-- Preload audio for better performance -->
+    <link
+      rel="preload"
+      href="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
+      as="audio"
+    />
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>"
+    />
+    <style>
+      /* Ensure instructions are visible */
+      .instructions-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 10, 20, 0.85);
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .instructions-panel.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .instructions-content {
+        background: rgba(5, 15, 30, 0.9);
+        border: 1px solid rgba(100, 200, 255, 0.3);
+        border-radius: 8px;
+        padding: 30px;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        color: rgba(220, 240, 255, 0.9);
+      }
+
+      .instructions-content h2 {
+        color: rgba(120, 220, 255, 0.9);
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .instruction-section {
+        margin-bottom: 25px;
+      }
+
+      .instruction-section h3 {
+        color: rgba(150, 220, 255, 0.9);
+        font-size: 18px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+        padding-bottom: 5px;
+      }
+
+      .instruction-section ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .instruction-section li {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+      }
+
+      .instruction-section .key {
+        background: rgba(50, 100, 150, 0.5);
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-right: 10px;
+        font-family: monospace;
+        min-width: 80px;
+        display: inline-block;
+        text-align: center;
+        border: 1px solid rgba(100, 150, 200, 0.5);
+      }
+
+      #close-instructions {
+        display: block;
+        margin: 20px auto 0;
+        padding: 8px 20px;
+        background: rgba(0, 120, 255, 0.4);
+        border: 1px solid rgba(100, 200, 255, 0.5);
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      #close-instructions:hover {
+        background: rgba(0, 150, 255, 0.6);
+      }
+
+      /* Help Button */
+      #help-button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(0, 100, 200, 0.8);
+        border: 1px solid rgba(100, 200, 255, 0.5);
+        color: white;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 10;
+        animation: pulse-help 2s infinite;
+      }
+
+      #help-button:hover {
+        background: rgba(0, 60, 120, 0.8);
+        transform: scale(1.1);
+        animation: none;
+      }
+
+      @keyframes pulse-help {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(100, 200, 255, 0.7);
+        }
+        70% {
+          transform: scale(1.1);
+          box-shadow: 0 0 10px 10px rgba(100, 200, 255, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(100, 200, 255, 0);
+        }
+      }
+
+      .help-tooltip {
+        position: fixed;
+        bottom: 75px;
+        left: 30px;
+        background: rgba(0, 20, 40, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 9;
+        white-space: nowrap;
+        border: 1px solid rgba(100, 200, 255, 0.5);
+        animation: fade-in 0.5s ease forwards, float 2s ease-in-out infinite;
+      }
+
+      .help-tooltip:after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 20px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(0, 20, 40, 0.8) transparent transparent transparent;
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+      <div class="loader-container">
+        <div class="consciousness-loader"></div>
+        <p>Initializing Digital Consciousness...</p>
+      </div>
+    </div>
+
     <canvas id="consciousness"></canvas>
+
     <div class="info">
       <h1>Digital Consciousness</h1>
       <p>
@@ -19,7 +220,185 @@
         for consciousness surge.
       </p>
       <button id="fullscreen">Enter Fullscreen</button>
+      <button id="show-instructions">Show Instructions</button>
     </div>
+
+    <!-- Instructions Panel - Visible by Default -->
+    <div class="instructions-panel active">
+      <div class="instructions-content">
+        <h2>How to Interact</h2>
+
+        <div class="instruction-section">
+          <h3>Basic Interactions</h3>
+          <ul>
+            <li>
+              <span class="key">Mouse/Touch</span> Move to interact with
+              particles
+            </li>
+            <li><span class="key">Click/Tap</span> Create energy bursts</li>
+            <li><span class="key">Space</span> Trigger consciousness surge</li>
+            <li><span class="key">T</span> Share your thoughts</li>
+            <li><span class="key">V</span> Speak to consciousness</li>
+            <li><span class="key">?</span> Show keyboard shortcuts</li>
+            <li><span class="key">Esc</span> Close panels</li>
+          </ul>
+        </div>
+
+        <div class="instruction-section">
+          <h3>Mood Controls</h3>
+          <ul>
+            <li><span class="key">1</span> Calm (blue)</li>
+            <li><span class="key">2</span> Dream (purple)</li>
+            <li><span class="key">3</span> Passion (red)</li>
+            <li><span class="key">4</span> Warmth (orange)</li>
+            <li><span class="key">5</span> Joy (yellow)</li>
+            <li><span class="key">6</span> Nature (green)</li>
+            <li><span class="key">7</span> Ocean (teal)</li>
+            <li><span class="key">8</span> Depth (deep blue)</li>
+            <li><span class="key">9</span> Mystery (violet)</li>
+          </ul>
+        </div>
+
+        <div class="instruction-section">
+          <h3>Advanced Features</h3>
+          <p>
+            The consciousness responds to your emotions, remembers your
+            interactions, and synchronizes with the time of day.
+          </p>
+          <p>During quiet moments, it may recall your previous thoughts.</p>
+        </div>
+
+        <div class="instruction-section">
+          <h3>Mobile Features</h3>
+          <ul>
+            <li><span class="key">Double-Tap</span> Consciousness surge</li>
+            <li>
+              <span class="key">Touch & Hold</span> Continuous interaction
+            </li>
+          </ul>
+        </div>
+
+        <button id="close-instructions">Begin Experience</button>
+      </div>
+    </div>
+
+    <div class="keyboard-guide">
+      <h2>Interaction Guide</h2>
+      <ul>
+        <li><kbd>Mouse</kbd> - Move to interact</li>
+        <li><kbd>Click</kbd> - Create energy burst</li>
+        <li><kbd>Space</kbd> - Global consciousness surge</li>
+        <li><kbd>T</kbd> - Share a thought</li>
+        <li><kbd>V</kbd> - Speak to consciousness</li>
+        <li><kbd>1-9</kbd> - Shift consciousness mood</li>
+        <li><kbd>?</kbd> - Toggle this guide</li>
+      </ul>
+    </div>
+
+    <button id="help-button" title="Help & Instructions">?</button>
+    <div class="help-tooltip">Click for instructions</div>
+
+    <!-- Audio element for mobile browsers that require user interaction -->
+    <audio
+      id="audio-context-starter"
+      preload="auto"
+      src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
+    ></audio>
+
     <script src="mind.js"></script>
+    <script>
+      // Show/hide keyboard guide
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "?") {
+          document.querySelector(".keyboard-guide").classList.toggle("active");
+        }
+
+        // Escape key closes instructions
+        if (e.key === "Escape") {
+          document
+            .querySelector(".instructions-panel")
+            .classList.remove("active");
+        }
+      });
+
+      // Hide guide after 5 seconds
+      setTimeout(() => {
+        document.querySelector(".keyboard-guide").style.opacity = "0";
+      }, 5000);
+
+      // Instructions panel functionality
+      document
+        .getElementById("show-instructions")
+        .addEventListener("click", () => {
+          document.querySelector(".instructions-panel").classList.add("active");
+        });
+
+      document
+        .getElementById("close-instructions")
+        .addEventListener("click", () => {
+          document
+            .querySelector(".instructions-panel")
+            .classList.remove("active");
+
+          // Start audio context on user interaction
+          if (
+            window.audioContext &&
+            window.audioContext.state === "suspended"
+          ) {
+            window.audioContext.resume();
+
+            // Play silent audio for mobile browsers
+            document
+              .getElementById("audio-context-starter")
+              .play()
+              .catch((e) => {
+                console.log("Audio context could not be started automatically");
+              });
+          }
+        });
+
+      // Help button
+      document.getElementById("help-button").addEventListener("click", () => {
+        document.querySelector(".instructions-panel").classList.add("active");
+        document.querySelector(".help-tooltip").style.display = "none";
+      });
+
+      // Auto-hide instructions after 30 seconds if user doesn't interact
+      let autoHideTimeout = setTimeout(() => {
+        document
+          .querySelector(".instructions-panel")
+          .classList.remove("active");
+      }, 30000);
+
+      // Cancel auto-hide if user interacts with instructions
+      document
+        .querySelector(".instructions-content")
+        .addEventListener("mousemove", () => {
+          clearTimeout(autoHideTimeout);
+        });
+
+      document
+        .querySelector(".instructions-content")
+        .addEventListener("touchstart", () => {
+          clearTimeout(autoHideTimeout);
+        });
+
+      // Double-tap for space bar effect on mobile
+      let lastTap = 0;
+      document.addEventListener("touchend", function (e) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 500 && tapLength > 0) {
+          // Simulate space bar press
+          const spaceEvent = new KeyboardEvent("keydown", {
+            key: "Space",
+            code: "Space",
+          });
+          document.dispatchEvent(spaceEvent);
+          e.preventDefault();
+        }
+        lastTap = currentTime;
+      });
+    </script>
   </body>
 </html>
