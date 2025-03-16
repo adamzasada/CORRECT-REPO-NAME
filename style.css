@@ -21,52 +21,78 @@ canvas {
 
 .info {
     position: fixed;
-    bottom: 20px;
+    top: 20px;
     left: 20px;
-    max-width: 300px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 10, 20, 0.7);
     padding: 15px;
     border-radius: 8px;
-    transition: opacity 0.5s;
-    z-index: 10;
+    color: white;
+    max-width: 300px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid rgba(100, 200, 255, 0.3);
 }
 
-.info:hover {
-    opacity: 1;
+.info h1 {
+    font-size: 20px;
+    margin: 0 0 5px 0;
+    color: rgba(150, 220, 255, 0.9);
 }
 
-h1 {
-    font-size: 18px;
-    margin-bottom: 8px;
-    color: rgba(120, 220, 255, 0.9);
-}
-
-p {
+.info p {
     font-size: 14px;
-    margin-bottom: 12px;
+    margin: 0 0 10px 0;
     line-height: 1.4;
 }
 
-button {
-    background: rgba(0, 100, 200, 0.3);
+.info button {
+    background: rgba(0, 80, 150, 0.6);
     border: 1px solid rgba(100, 200, 255, 0.5);
     color: white;
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s;
+    margin-top: 5px;
+    font-size: 14px;
 }
 
-button:hover {
-    background: rgba(0, 150, 255, 0.5);
+.info button:hover {
+    background: rgba(0, 100, 180, 0.8);
 }
 
 @media (max-width: 768px) {
     .info {
-        bottom: 10px;
+        top: 10px;
         left: 10px;
         right: 10px;
-        max-width: none;
+        max-width: calc(100% - 20px);
+        padding: 10px;
+    }
+    
+    .info h1 {
+        font-size: 18px;
+    }
+    
+    .info p {
+        font-size: 12px;
+    }
+    
+    .info button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .info {
+        flex-direction: column;
+    }
+    
+    .help-tooltip {
+        bottom: 125px;
+        left: 20px;
+        font-size: 12px;
     }
 }
 
@@ -520,4 +546,31 @@ button:focus, input:focus {
   canvas {
     opacity: 0.9999;
   }
+}
+
+/* Fix for help tooltip positioning */
+.help-tooltip {
+    position: fixed;
+    bottom: 75px;
+    left: 40px; /* Adjusted to not overlap with the button */
+    background: rgba(0, 20, 40, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 9;
+    white-space: nowrap;
+    border: 1px solid rgba(100, 200, 255, 0.5);
+    transform: none; /* Remove transform that was causing issues */
+}
+
+.help-tooltip:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 20px; /* Adjusted for better positioning */
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 20, 40, 0.8) transparent transparent transparent;
 }
