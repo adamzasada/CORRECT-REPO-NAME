@@ -1962,3 +1962,34 @@ document.addEventListener('click', function(e) {
 });
 
 console.log('State-of-the-art enhancements loaded');
+
+// Make sure DOM is fully loaded before initializing
+document.addEventListener('DOMContentLoaded', function() {
+  const canvas = document.getElementById('consciousness');
+  if (!canvas) {
+    console.error('Canvas element not found!');
+    return;
+  }
+  
+  // Set canvas size
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  // Get context
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    console.error('Could not get canvas context!');
+    return;
+  }
+  
+  // Draw something simple to test if canvas works
+  ctx.fillStyle = 'rgba(0, 100, 200, 0.5)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  console.log('Canvas initialized successfully');
+  
+  // Call your main initialization function here if it exists
+  if (typeof initConsciousness === 'function') {
+    initConsciousness();
+  }
+});
