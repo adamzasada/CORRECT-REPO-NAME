@@ -42,12 +42,21 @@ let audioContext;
 let oscillator;
 let gainNode;
 
+// Define mood colors globally
+const moodSettings = [
+  { name: "Calm", hue: 200, saturation: 100, brightness: 70 },
+  { name: "Dream", hue: 280, saturation: 100, brightness: 70 },
+  { name: "Passion", hue: 340, saturation: 100, brightness: 70 },
+  { name: "Warmth", hue: 30, saturation: 100, brightness: 70 },
+  { name: "Joy", hue: 60, saturation: 100, brightness: 70 },
+  { name: "Nature", hue: 120, saturation: 100, brightness: 70 },
+  { name: "Ocean", hue: 180, saturation: 100, brightness: 70 },
+  { name: "Depth", hue: 220, saturation: 100, brightness: 70 },
+  { name: "Mystery", hue: 300, saturation: 100, brightness: 70 }
+];
+
 // Initialize currentMood properly
-let currentMood = {
-  hue: 200,
-  saturation: 100,
-  brightness: 70
-};
+let currentMood = { ...moodSettings[0] };
 
 // Fix for mobile devices - ensure proper canvas sizing
 function setCanvasSize() {
@@ -546,8 +555,12 @@ const communicationSystem = {
 };
 
 // 2. Mood/color theme shifting - Fixed version
-function shiftMood(newHue, duration = 3000) {
+function shiftMood(newHue, newSaturation = 100, newBrightness = 70, duration = 3000) {
+  console.log(`Shifting mood to hue: ${newHue}, sat: ${newSaturation}, brightness: ${newBrightness}`);
+  
   const startHue = currentMood.hue;
+  const startSat = currentMood.saturation;
+  const startBright = currentMood.brightness;
   
   // Calculate the shortest path around the color wheel
   let hueDistance = ((newHue - startHue + 540) % 360) - 180;
@@ -563,8 +576,10 @@ function shiftMood(newHue, duration = 3000) {
       ? 2 * progress * progress 
       : 1 - Math.pow(-2 * progress + 2, 2) / 2;
     
-    // Update the current mood hue
+    // Update the current mood values
     currentMood.hue = (startHue + hueDistance * easeProgress + 360) % 360;
+    currentMood.saturation = startSat + (newSaturation - startSat) * easeProgress;
+    currentMood.brightness = startBright + (newBrightness - startBright) * easeProgress;
     
     if (progress < 1) {
       requestAnimationFrame(animateMoodShift);
@@ -572,9 +587,6 @@ function shiftMood(newHue, duration = 3000) {
   }
   
   animateMoodShift();
-  
-  // Log the mood shift for debugging
-  console.log(`Shifting mood from hue ${startHue} to ${newHue}`);
 }
 
 // Initialize the communication system
@@ -585,18 +597,22 @@ document.addEventListener('keydown', (e) => {
   // Number keys 1-9 shift mood
   if (e.key >= '1' && e.key <= '9') {
     const moodIndex = parseInt(e.key) - 1;
-    const moodHues = [200, 280, 340, 30, 60, 120, 180, 220, 300];
-    const moodNames = ["Calm", "Dream", "Passion", "Warmth", "Joy", "Nature", "Ocean", "Depth", "Mystery"];
     
-    // Shift to the new mood
-    shiftMood(moodHues[moodIndex]);
-    
-    // Display mood shift
-    currentThought = `Mood: ${moodNames[moodIndex]}`;
-    thoughtOpacity = 0;
-    animateThought();
-    
-    console.log(`Mood shifted to: ${moodNames[moodIndex]} (Hue: ${moodHues[moodIndex]})`);
+    if (moodIndex >= 0 && moodIndex < moodSettings.length) {
+      const mood = moodSettings[moodIndex];
+      
+      // Shift to the new mood
+      shiftMood(mood.hue, mood.saturation, mood.brightness);
+      
+      // Display mood shift
+      if (typeof currentThought !== 'undefined' && typeof thoughtOpacity !== 'undefined' && typeof animateThought !== 'undefined') {
+        currentThought = `Mood: ${mood.name}`;
+        thoughtOpacity = 0;
+        animateThought();
+      }
+      
+      console.log(`Mood shifted to: ${mood.name} (Hue: ${mood.hue})`);
+    }
   }
 });
 
