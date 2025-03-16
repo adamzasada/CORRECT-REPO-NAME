@@ -58,23 +58,126 @@ const moodSettings = [
 // Initialize currentMood properly
 let currentMood = { ...moodSettings[0] };
 
-// Fix for mobile devices - ensure proper canvas sizing
-function setCanvasSize() {
-  const devicePixelRatio = window.devicePixelRatio || 1;
+// Make sure canvas covers the entire screen
+function setupCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   
-  // Set display size (css pixels)
-  canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
-  
-  // Set actual size in memory (scaled to account for extra pixel density)
-  // Use a more modest scale for better performance on mobile
-  const scale = devicePixelRatio > 2 ? 2 : devicePixelRatio;
-  canvas.width = window.innerWidth * scale;
-  canvas.height = window.innerHeight * scale;
-  
-  // Normalize coordinate system to use css pixels
-  ctx.scale(scale, scale);
+  // Ensure the canvas is visible
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  canvas.style.zIndex = '1';
+  canvas.style.background = '#000';
 }
+
+// Call this function during initialization
+window.addEventListener('load', setupCanvas);
+window.addEventListener('resize', setupCanvas);
+
+// Fix particle creation to ensure they're visible
+function createParticles(count = 100) {
+  particles = [];
+  const particleCount = window.innerWidth < 768 ? Math.min(count, 50) : count;
+  
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+  
+  console.log(`Created ${particleCount} particles`);
+}
+
+// Ensure particles are properly drawn
+Particle.prototype.draw = function() {
+  ctx.beginPath();
+  ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+  
+  // Make sure particles are visible with higher opacity
+  const opacity = Math.max(0.4, this.energy);
+  ctx.fillStyle = `hsla(${this.hue}, ${currentMood.saturation}%, ${currentMood.brightness}%, ${opacity})`;
+  ctx.fill();
+  
+  // Add a subtle glow effect
+  ctx.shadowBlur = 5;
+  ctx.shadowColor = `hsla(${this.hue}, ${currentMood.saturation}%, ${currentMood.brightness}%, 0.5)`;
+};
+
+// Modify the animate function to clear the canvas properly
+function updateAnimateFunction() {
+  const originalAnimate = window.animate;
+  
+  window.animate = function() {
+    requestAnimationFrame(window.animate);
+    
+    // Clear the canvas completely each frame
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw a subtle gradient background
+    const gradient = ctx.createRadialGradient(
+      canvas.width/2, canvas.height/2, 0,
+      canvas.width/2, canvas.height/2, canvas.width/2
+    );
+    gradient.addColorStop(0, `rgba(${currentMood.hue/360*10}, ${currentMood.hue/360*5}, ${currentMood.hue/360*20}, 1)`);
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Update and draw particles
+    particles.forEach(particle => {
+      particle.update();
+      particle.draw();
+    });
+    
+    // Draw connections with higher opacity
+    particles.forEach((p1, i) => {
+      particles.slice(i + 1).forEach(p2 => {
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < connectionDistance) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          
+          // Increase connection opacity
+          const opacity = Math.min(1, (1 - distance/connectionDistance) * 
+                         ((p1.energy + p2.energy) / 1.5));
+          
+          const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+          gradient.addColorStop(0, `hsla(${p1.hue}, ${currentMood.saturation}%, ${currentMood.brightness}%, ${opacity})`);
+          gradient.addColorStop(1, `hsla(${p2.hue}, ${currentMood.saturation}%, ${currentMood.brightness}%, ${opacity})`);
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = Math.min(3, opacity * 4);
+          ctx.stroke();
+        }
+      });
+    });
+    
+    // Rest of the animate function...
+    // (Keep any other code from the original animate function)
+  };
+}
+
+// Call this during initialization
+window.addEventListener('load', function() {
+  setupCanvas();
+  createParticles();
+  
+  // Only update the animate function if it exists
+  if (typeof window.animate === 'function') {
+    updateAnimateFunction();
+  }
+  
+  // Force redraw
+  if (typeof ctx !== 'undefined' && ctx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+});
 
 // Create a particle
 class Particle {
@@ -1353,3 +1456,509 @@ window.addEventListener('load', function() {
     uxEnhancements.initialized = true;
   }
 });
+
+// State-of-the-art enhancements for Digital Consciousness
+// Add this code at the end of your mind.js file
+
+// Advanced visual effects system
+const visualEffects = {
+  initialized: false,
+  
+  init: function() {
+    if (this.initialized) return;
+    
+    // Create post-processing canvas for advanced effects
+    this.postCanvas = document.createElement('canvas');
+    this.postCanvas.width = window.innerWidth;
+    this.postCanvas.height = window.innerHeight;
+    this.postCanvas.style.position = 'fixed';
+    this.postCanvas.style.top = '0';
+    this.postCanvas.style.left = '0';
+    this.postCanvas.style.width = '100%';
+    this.postCanvas.style.height = '100%';
+    this.postCanvas.style.zIndex = '0';
+    this.postCanvas.style.pointerEvents = 'none';
+    document.body.appendChild(this.postCanvas);
+    this.postCtx = this.postCanvas.getContext('2d');
+    
+    // Create bloom effect canvas
+    this.bloomCanvas = document.createElement('canvas');
+    this.bloomCanvas.width = window.innerWidth / 4; // Lower resolution for performance
+    this.bloomCanvas.height = window.innerHeight / 4;
+    this.bloomCtx = this.bloomCanvas.getContext('2d');
+    
+    // Create depth particles (background layer)
+    this.depthParticles = [];
+    const depthCount = window.innerWidth < 768 ? 30 : 80;
+    for (let i = 0; i < depthCount; i++) {
+      this.depthParticles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.random() * 2 + 0.5,
+        speed: Math.random() * 0.2 + 0.1,
+        opacity: Math.random() * 0.5 + 0.1,
+        hue: Math.random() * 60 + currentMood.hue - 30
+      });
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      this.postCanvas.width = window.innerWidth;
+      this.postCanvas.height = window.innerHeight;
+      this.bloomCanvas.width = window.innerWidth / 4;
+      this.bloomCanvas.height = window.innerHeight / 4;
+    });
+    
+    this.initialized = true;
+    console.log('Advanced visual effects initialized');
+  },
+  
+  applyBloom: function() {
+    // Downsample and blur for bloom effect
+    this.bloomCtx.clearRect(0, 0, this.bloomCanvas.width, this.bloomCanvas.height);
+    this.bloomCtx.drawImage(canvas, 0, 0, this.bloomCanvas.width, this.bloomCanvas.height);
+    
+    // Apply multiple blur passes for better bloom
+    this.applyBlur(this.bloomCtx, 4);
+    this.applyBlur(this.bloomCtx, 8);
+    
+    // Draw bloom back to main canvas with additive blending
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.drawImage(this.bloomCanvas, 0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+  },
+  
+  applyBlur: function(context, radius) {
+    const w = context.canvas.width;
+    const h = context.canvas.height;
+    
+    // Simple box blur implementation
+    let imageData = context.getImageData(0, 0, w, h);
+    let pixels = imageData.data;
+    let tempPixels = new Uint8ClampedArray(pixels);
+    
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let r = 0, g = 0, b = 0, a = 0, count = 0;
+        
+        // Sample pixels in radius
+        for (let ky = -radius; ky <= radius; ky++) {
+          for (let kx = -radius; kx <= radius; kx++) {
+            let posX = x + kx;
+            let posY = y + ky;
+            
+            if (posX >= 0 && posX < w && posY >= 0 && posY < h) {
+              let offset = (posY * w + posX) * 4;
+              r += tempPixels[offset];
+              g += tempPixels[offset + 1];
+              b += tempPixels[offset + 2];
+              a += tempPixels[offset + 3];
+              count++;
+            }
+          }
+        }
+        
+        // Average values
+        let offset = (y * w + x) * 4;
+        pixels[offset] = r / count;
+        pixels[offset + 1] = g / count;
+        pixels[offset + 2] = b / count;
+        pixels[offset + 3] = a / count;
+      }
+    }
+    
+    context.putImageData(imageData, 0, 0);
+  },
+  
+  renderDepthParticles: function() {
+    // Render background depth particles for parallax effect
+    this.postCtx.clearRect(0, 0, this.postCanvas.width, this.postCanvas.height);
+    
+    // Create starfield effect
+    this.postCtx.fillStyle = '#000';
+    this.postCtx.fillRect(0, 0, this.postCanvas.width, this.postCanvas.height);
+    
+    // Draw subtle nebula
+    const nebulaGradient = this.postCtx.createRadialGradient(
+      this.postCanvas.width/2, this.postCanvas.height/2, 0,
+      this.postCanvas.width/2, this.postCanvas.height/2, this.postCanvas.width/1.5
+    );
+    
+    // Use current mood for nebula color
+    const h = currentMood.hue;
+    const s = currentMood.saturation * 0.5;
+    const l = currentMood.brightness * 0.15;
+    
+    nebulaGradient.addColorStop(0, `hsla(${h}, ${s}%, ${l}%, 0.4)`);
+    nebulaGradient.addColorStop(0.5, `hsla(${(h+30)%360}, ${s*0.8}%, ${l*0.7}%, 0.2)`);
+    nebulaGradient.addColorStop(1, `hsla(${(h+60)%360}, ${s*0.5}%, ${l*0.5}%, 0)`);
+    
+    this.postCtx.fillStyle = nebulaGradient;
+    this.postCtx.fillRect(0, 0, this.postCanvas.width, this.postCanvas.height);
+    
+    // Update and draw depth particles
+    for (let p of this.depthParticles) {
+      p.y += p.speed;
+      if (p.y > this.postCanvas.height) {
+        p.y = 0;
+        p.x = Math.random() * this.postCanvas.width;
+      }
+      
+      // Adjust color based on current mood
+      p.hue = (p.hue + 0.1) % 360;
+      
+      this.postCtx.beginPath();
+      this.postCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.postCtx.fillStyle = `hsla(${(currentMood.hue + p.hue) % 360}, ${currentMood.saturation * 0.8}%, ${currentMood.brightness * 0.9}%, ${p.opacity})`;
+      this.postCtx.fill();
+    }
+  },
+  
+  update: function() {
+    if (!this.initialized) return;
+    
+    // Render depth particles first (background layer)
+    this.renderDepthParticles();
+    
+    // Apply bloom effect to main canvas
+    this.applyBloom();
+  }
+};
+
+// Advanced audio system with spatial audio
+const audioSystem = {
+  initialized: false,
+  
+  init: function() {
+    if (this.initialized || !window.AudioContext) return;
+    
+    // Create audio context if it doesn't exist
+    if (!window.audioContext) {
+      window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    // Create analyzer for visualization
+    this.analyzer = audioContext.createAnalyser();
+    this.analyzer.fftSize = 256;
+    this.analyzer.connect(audioContext.destination);
+    
+    // Create master gain
+    this.masterGain = audioContext.createGain();
+    this.masterGain.gain.value = 0.4; // Lower default volume
+    this.masterGain.connect(this.analyzer);
+    
+    // Create reverb for ambience
+    this.createReverb().then(reverb => {
+      this.reverb = reverb;
+      this.masterGain.connect(this.reverb);
+      this.reverb.connect(audioContext.destination);
+    });
+    
+    // Create frequency data array for visualization
+    this.dataArray = new Uint8Array(this.analyzer.frequencyBinCount);
+    
+    // Create ambient sound
+    this.startAmbientSound();
+    
+    this.initialized = true;
+    console.log('Advanced audio system initialized');
+  },
+  
+  createReverb: async function() {
+    // Create convolution reverb
+    const convolver = audioContext.createConvolver();
+    
+    // Generate impulse response
+    const sampleRate = audioContext.sampleRate;
+    const length = sampleRate * 3; // 3 seconds
+    const impulse = audioContext.createBuffer(2, length, sampleRate);
+    
+    // Fill impulse with noise and apply decay
+    for (let channel = 0; channel < 2; channel++) {
+      const impulseData = impulse.getChannelData(channel);
+      for (let i = 0; i < length; i++) {
+        // Noise with exponential decay
+        impulseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2);
+      }
+    }
+    
+    convolver.buffer = impulse;
+    return convolver;
+  },
+  
+  startAmbientSound: function() {
+    if (!audioContext) return;
+    
+    // Create ambient drone
+    const drone = audioContext.createOscillator();
+    drone.type = 'sine';
+    drone.frequency.value = 60; // Low frequency base
+    
+    // Add modulation
+    const modulator = audioContext.createOscillator();
+    modulator.type = 'sine';
+    modulator.frequency.value = 0.1; // Very slow modulation
+    
+    const modulationGain = audioContext.createGain();
+    modulationGain.gain.value = 10; // Modulation amount
+    
+    modulator.connect(modulationGain);
+    modulationGain.connect(drone.frequency);
+    
+    // Create filter for drone
+    const filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 200;
+    filter.Q.value = 10;
+    
+    // Create gain for drone
+    const droneGain = audioContext.createGain();
+    droneGain.gain.value = 0.03; // Very quiet
+    
+    // Connect everything
+    drone.connect(filter);
+    filter.connect(droneGain);
+    droneGain.connect(this.masterGain);
+    
+    // Start oscillators
+    drone.start();
+    modulator.start();
+    
+    // Store for later reference
+    this.drone = drone;
+    this.modulator = modulator;
+  },
+  
+  playInteractionSound: function(x, y, energy) {
+    if (!audioContext || audioContext.state !== 'running') return;
+    
+    // Create oscillator
+    const osc = audioContext.createOscillator();
+    
+    // Map x position to pan and y position to pitch
+    const normalizedX = x / window.innerWidth;
+    const normalizedY = 1 - (y / window.innerHeight);
+    
+    // Create stereo panner
+    const panner = audioContext.createStereoPanner();
+    panner.pan.value = (normalizedX - 0.5) * 2; // -1 to 1
+    
+    // Map position and energy to frequency
+    const baseFreq = 200 + normalizedY * 600;
+    const freq = baseFreq + energy * 300;
+    osc.frequency.value = freq;
+    
+    // Choose waveform based on current mood
+    const waveforms = ['sine', 'triangle', 'sawtooth'];
+    const moodIndex = Math.floor((currentMood.hue / 360) * waveforms.length);
+    osc.type = waveforms[moodIndex % waveforms.length];
+    
+    // Create envelope
+    const envelope = audioContext.createGain();
+    const now = audioContext.currentTime;
+    envelope.gain.setValueAtTime(0, now);
+    envelope.gain.linearRampToValueAtTime(energy * 0.2, now + 0.02);
+    envelope.gain.exponentialRampToValueAtTime(0.001, now + 0.5 + energy);
+    
+    // Connect everything
+    osc.connect(panner);
+    panner.connect(envelope);
+    envelope.connect(this.masterGain);
+    
+    // Start and stop
+    osc.start();
+    osc.stop(now + 1);
+  },
+  
+  update: function() {
+    if (!this.initialized || !audioContext || audioContext.state !== 'running') return;
+    
+    // Update analyzer data
+    this.analyzer.getByteFrequencyData(this.dataArray);
+    
+    // Use audio data to influence particles
+    const averageEnergy = this.getAverageEnergy();
+    
+    // Update drone based on current mood
+    if (this.drone) {
+      // Map hue to base frequency
+      const baseFreq = 50 + (currentMood.hue / 360) * 30;
+      this.drone.frequency.setTargetAtTime(baseFreq, audioContext.currentTime, 2);
+    }
+    
+    return averageEnergy;
+  },
+  
+  getAverageEnergy: function() {
+    if (!this.dataArray) return 0;
+    
+    let sum = 0;
+    for (let i = 0; i < this.dataArray.length; i++) {
+      sum += this.dataArray[i];
+    }
+    return sum / (this.dataArray.length * 255); // Normalize to 0-1
+  }
+};
+
+// Advanced physics system
+const physicsSystem = {
+  initialized: false,
+  
+  init: function() {
+    if (this.initialized) return;
+    
+    this.forces = {
+      gravity: { x: 0, y: 0.02 },
+      wind: { x: 0, y: 0 },
+      vortex: { x: window.innerWidth / 2, y: window.innerHeight / 2, strength: 0 }
+    };
+    
+    this.initialized = true;
+    console.log('Advanced physics system initialized');
+  },
+  
+  updateForces: function() {
+    // Slowly change wind force
+    this.forces.wind.x = Math.sin(Date.now() / 10000) * 0.01;
+    this.forces.wind.y = Math.cos(Date.now() / 12000) * 0.005;
+    
+    // Update vortex based on interaction
+    this.forces.vortex.strength = interactionLevel * 0.1;
+    
+    // Update vortex position occasionally
+    if (Math.random() < 0.001) {
+      this.forces.vortex.x = Math.random() * window.innerWidth;
+      this.forces.vortex.y = Math.random() * window.innerHeight;
+    }
+  },
+  
+  applyForces: function(particle) {
+    // Apply wind
+    particle.vx += this.forces.wind.x;
+    particle.vy += this.forces.wind.y;
+    
+    // Apply vortex if active
+    if (this.forces.vortex.strength > 0.01) {
+      const dx = particle.x - this.forces.vortex.x;
+      const dy = particle.y - this.forces.vortex.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance > 0 && distance < 300) {
+        const angle = Math.atan2(dy, dx);
+        const force = (300 - distance) / 300 * this.forces.vortex.strength;
+        
+        // Perpendicular force for vortex
+        particle.vx += Math.sin(angle) * force;
+        particle.vy -= Math.cos(angle) * force;
+      }
+    }
+  }
+};
+
+// Initialize all advanced systems
+window.addEventListener('load', function() {
+  visualEffects.init();
+  audioSystem.init();
+  physicsSystem.init();
+  
+  // Override the original animate function to include our advanced effects
+  const originalAnimate = window.animate;
+  
+  window.animate = function() {
+    requestAnimationFrame(window.animate);
+    
+    // Update physics
+    if (physicsSystem.initialized) {
+      physicsSystem.updateForces();
+    }
+    
+    // Clear canvas with fade effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Update and draw particles with advanced physics
+    particles.forEach(particle => {
+      // Apply advanced physics if available
+      if (physicsSystem.initialized) {
+        physicsSystem.applyForces(particle);
+      }
+      
+      particle.update();
+      particle.draw();
+    });
+    
+    // Draw connections with enhanced visuals
+    particles.forEach((p1, i) => {
+      particles.slice(i + 1).forEach(p2 => {
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < connectionDistance) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          
+          const opacity = (1 - distance/connectionDistance) * 
+                         ((p1.energy + p2.energy) / 2);
+          
+          // Enhanced gradient connections
+          const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+          gradient.addColorStop(0, `hsla(${p1.hue}, ${currentMood.saturation}%, ${currentMood.brightness}%, ${opacity})`);
+          gradient.addColorStop(1, `hsla(${p2.hue}, ${currentMood.saturation}%, ${currentMood.brightness}%, ${opacity})`);
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = Math.min(2, opacity * 3);
+          ctx.stroke();
+        }
+      });
+    });
+    
+    // Apply post-processing effects
+    if (visualEffects.initialized) {
+      visualEffects.update();
+    }
+    
+    // Update audio visualization
+    if (audioSystem.initialized) {
+      const audioEnergy = audioSystem.update();
+      
+      // Use audio energy to influence particles
+      if (audioEnergy > 0.1) {
+        particles.forEach(p => {
+          p.energy = Math.min(1, p.energy + audioEnergy * 0.05);
+        });
+      }
+    }
+  };
+  
+  // Start animation if not already started
+  if (typeof originalAnimate === 'function') {
+    window.animate();
+  }
+  
+  // Enable audio context on first user interaction
+  document.addEventListener('click', function enableAudio() {
+    if (audioContext && audioContext.state === 'suspended') {
+      audioContext.resume().then(() => {
+        console.log('AudioContext resumed successfully');
+      });
+    }
+    document.removeEventListener('click', enableAudio);
+  }, { once: true });
+});
+
+// Enhanced interaction system
+document.addEventListener('mousemove', function(e) {
+  if (audioSystem.initialized && Math.random() < 0.05) {
+    audioSystem.playInteractionSound(e.clientX, e.clientY, 0.2);
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (audioSystem.initialized) {
+    audioSystem.playInteractionSound(e.clientX, e.clientY, 0.8);
+  }
+});
+
+console.log('State-of-the-art enhancements loaded');
